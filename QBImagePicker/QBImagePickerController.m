@@ -52,6 +52,7 @@
         
         // Set instance
         QBAlbumsViewController *albumsViewController = (QBAlbumsViewController *)self.albumsNavigationController.topViewController;
+        albumsViewController.selectedAssets = _selectedAssets;
         albumsViewController.imagePickerController = self;
     }
     
