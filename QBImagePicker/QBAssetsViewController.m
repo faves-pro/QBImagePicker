@@ -66,7 +66,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 @property (nonatomic, assign) BOOL disableScrollToBottom;
 @property (nonatomic, strong) NSIndexPath *lastSelectedItemIndexPath;
 @property (nonatomic, assign) BOOL isSelecting;
-
+@property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 @end
 
 @implementation QBAssetsViewController
@@ -92,11 +92,13 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     // Configure collection view
     self.collectionView.allowsMultipleSelection = self.imagePickerController.allowsMultipleSelection;
-    self.collectionView.canCancelContentTouches = true;
+    self.collectionView.canCancelContentTouches = NO;
     
-    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPan:)];
-    panGesture.delegate = self;
-    [self.collectionView addGestureRecognizer:panGesture];
+    self.panGesture = [[UIPanGestureRecognizer new] initWithTarget:self action:@selector(didPan:)];
+    self.panGesture.delegate = self;
+    self.panGesture.delaysTouchesBegan = YES;
+    
+    [self.collectionView addGestureRecognizer:self.panGesture];
 
     // Show/hide 'Done' button
     if (self.imagePickerController.allowsMultipleSelection) {
@@ -157,7 +159,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 }
     
 - (void)didPan:(UIPanGestureRecognizer *)sender {
-    if (sender.state == UIGestureRecognizerStateBegan) {
+    if (sender.state == UIGestureRecognizerStateBegan ) {
         [self.collectionView setUserInteractionEnabled:NO];
         [self.collectionView setScrollEnabled:NO];
         CGPoint location = [sender locationInView:self.collectionView];
@@ -169,7 +171,10 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             [self customCollectionView:self.collectionView didDeselectItemAtIndexPath:indexPath];
             self.isSelecting = NO;
         } else {
-            [self.collectionView selectItemAtIndexPath:indexPath animated:true scrollPosition:UICollectionViewScrollPositionCenteredVertically];
+            if ([self isMaximumSelectionLimitReached]) {
+                return;
+            }
+            [self.collectionView selectItemAtIndexPath:indexPath animated:true scrollPosition:UICollectionViewScrollPositionNone];
             [self customCollectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
             self.isSelecting = YES;
         }
@@ -183,17 +188,15 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     } else if (sender.state == UIGestureRecognizerStateEnded) {
         [self.collectionView setScrollEnabled:YES];
         [self.collectionView setUserInteractionEnabled:YES];
-        NSLog(@"ENDED");
     }
 }
 
 - (void)selectCell:(NSIndexPath *)indexPath {
     if (!self.isSelecting) {
         [self.collectionView deselectItemAtIndexPath:indexPath animated:YES];
-        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:YES];
         [self customCollectionView:self.collectionView didDeselectItemAtIndexPath:indexPath];
     } else if (![self isMaximumSelectionLimitReached]) {
-        [self.collectionView selectItemAtIndexPath:indexPath animated:true scrollPosition:UICollectionViewScrollPositionCenteredVertically];
+        [self.collectionView selectItemAtIndexPath:indexPath animated:true scrollPosition:UICollectionViewScrollPositionNone];
         [self customCollectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
     }
 }
@@ -597,6 +600,15 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     }
     
     return nil;
+}
+    
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    CGPoint velocity = [self.panGesture velocityInView:self.collectionView];
+    return !(fabs(velocity.y) > fabs(velocity.x));
+}
+    
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
 }
 
 
