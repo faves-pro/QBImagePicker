@@ -54,7 +54,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 @end
 
-@interface QBAssetsViewController () <PHPhotoLibraryChangeObserver, UICollectionViewDelegateFlowLayout>
+@interface QBAssetsViewController () <PHPhotoLibraryChangeObserver, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) IBOutlet UIBarButtonItem *doneButton;
 
@@ -65,6 +65,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 @property (nonatomic, assign) BOOL disableScrollToBottom;
 @property (nonatomic, strong) NSIndexPath *lastSelectedItemIndexPath;
+@property (nonatomic, assign) BOOL isSelecting;
 
 @end
 
@@ -91,7 +92,12 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     // Configure collection view
     self.collectionView.allowsMultipleSelection = self.imagePickerController.allowsMultipleSelection;
+    self.collectionView.canCancelContentTouches = true;
     
+    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPan:)];
+    panGesture.delegate = self;
+    [self.collectionView addGestureRecognizer:panGesture];
+
     // Show/hide 'Done' button
     if (self.imagePickerController.allowsMultipleSelection) {
         [self.navigationItem setRightBarButtonItem:self.doneButton animated:NO];
@@ -148,6 +154,48 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 {
     // Deregister observer
     [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
+}
+    
+- (void)didPan:(UIPanGestureRecognizer *)sender {
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        [self.collectionView setUserInteractionEnabled:NO];
+        [self.collectionView setScrollEnabled:NO];
+        CGPoint location = [sender locationInView:self.collectionView];
+        NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:location];
+        UICollectionViewCell *cell = [self.collectionView cellForItemAtIndexPath:indexPath];
+        
+        if (cell.isSelected) {
+            [self.collectionView deselectItemAtIndexPath:indexPath animated:YES];
+            [self customCollectionView:self.collectionView didDeselectItemAtIndexPath:indexPath];
+            self.isSelecting = NO;
+        } else {
+            [self.collectionView selectItemAtIndexPath:indexPath animated:true scrollPosition:UICollectionViewScrollPositionCenteredVertically];
+            [self customCollectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
+            self.isSelecting = YES;
+        }
+    } else if (sender.state == UIGestureRecognizerStateChanged) {
+        CGPoint location = [sender locationInView:self.collectionView];
+        NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:location];
+        
+        if (indexPath != nil) {
+            [self selectCell:indexPath];
+        }
+    } else if (sender.state == UIGestureRecognizerStateEnded) {
+        [self.collectionView setScrollEnabled:YES];
+        [self.collectionView setUserInteractionEnabled:YES];
+        NSLog(@"ENDED");
+    }
+}
+
+- (void)selectCell:(NSIndexPath *)indexPath {
+    if (!self.isSelecting) {
+        [self.collectionView deselectItemAtIndexPath:indexPath animated:YES];
+        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:YES];
+        [self customCollectionView:self.collectionView didDeselectItemAtIndexPath:indexPath];
+    } else if (![self isMaximumSelectionLimitReached]) {
+        [self.collectionView selectItemAtIndexPath:indexPath animated:true scrollPosition:UICollectionViewScrollPositionCenteredVertically];
+        [self customCollectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
+    }
 }
 
 
@@ -567,9 +615,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     return ![self isMaximumSelectionLimitReached];
 }
-
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
+    
+- (void)customCollectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     QBImagePickerController *imagePickerController = self.imagePickerController;
     NSMutableOrderedSet *selectedAssets = imagePickerController.selectedAssets;
     
@@ -612,8 +659,12 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    [self customCollectionView:collectionView didSelectItemAtIndexPath:indexPath];
+}
+    
+- (void)customCollectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     if (!self.imagePickerController.allowsMultipleSelection) {
         return;
     }
@@ -642,6 +693,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     if ([imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didDeselectAsset:)]) {
         [imagePickerController.delegate qb_imagePickerController:imagePickerController didDeselectAsset:asset];
     }
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self customCollectionView:collectionView didDeselectItemAtIndexPath:indexPath];
 }
 
 
