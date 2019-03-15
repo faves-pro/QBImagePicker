@@ -67,6 +67,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 @property (nonatomic, strong) NSIndexPath *lastSelectedItemIndexPath;
 @property (nonatomic, assign) BOOL isSelecting;
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
+@property (nonatomic, assign) BOOL isPanSelecting;
 @end
 
 @implementation QBAssetsViewController
@@ -188,6 +189,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     } else if (sender.state == UIGestureRecognizerStateEnded) {
         [self.collectionView setScrollEnabled:YES];
         [self.collectionView setUserInteractionEnabled:YES];
+        self.isPanSelecting = NO;
+        self.isSelecting = NO;
     }
 }
 
@@ -603,8 +606,18 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 }
     
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
-    CGPoint velocity = [self.panGesture velocityInView:self.collectionView];
-    return !(fabs(velocity.y) > fabs(velocity.x));
+    if (self.isPanSelecting) {
+        return YES;
+    } else {
+        CGPoint velocity = [self.panGesture velocityInView:self.collectionView];
+        // Going vertical
+        if (fabs(velocity.y) > fabs(velocity.x)) {
+            return NO;
+        } else {
+            self.isPanSelecting = YES;
+            return YES;
+        }
+    }
 }
     
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
