@@ -86,7 +86,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+    [self.navigationController.interactivePopGestureRecognizer setEnabled: NO];
     // Configure navigation item
     self.navigationItem.title = self.assetCollection.localizedTitle;
     self.navigationItem.prompt = self.imagePickerController.prompt;
