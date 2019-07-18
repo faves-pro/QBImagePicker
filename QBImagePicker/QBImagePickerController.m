@@ -32,16 +32,6 @@
     return UIStatusBarAnimationSlide;
 }
 
-//override func viewWillAppear(_ animated: Bool) {
-//    super.viewWillAppear(animated)
-//
-//    isStatusBarHidden = false
-//    UIView.animate(withDuration: 0.3) { () -> Void in
-//        self.setNeedsStatusBarAppearanceUpdate()
-//    }
-//
-//}
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
@@ -69,6 +59,8 @@
         self.numberOfColumnsInLandscape = 7;
         
         _selectedAssets = [NSMutableOrderedSet orderedSet];
+        
+        self.isStatusBarHidden = YES;
         
         // Get asset bundle
         self.assetBundle = [NSBundle bundleForClass:[self class]];
