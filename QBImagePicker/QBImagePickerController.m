@@ -18,9 +18,38 @@
 
 @property (nonatomic, strong) NSBundle *assetBundle;
 
+@property (nonatomic) BOOL isStatusBarHidden;
+
 @end
 
 @implementation QBImagePickerController
+
+- (BOOL)prefersStatusBarHidden {
+    return self.isStatusBarHidden;
+}
+
+- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {
+    return UIStatusBarAnimationSlide;
+}
+
+//override func viewWillAppear(_ animated: Bool) {
+//    super.viewWillAppear(animated)
+//
+//    isStatusBarHidden = false
+//    UIView.animate(withDuration: 0.3) { () -> Void in
+//        self.setNeedsStatusBarAppearanceUpdate()
+//    }
+//
+//}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
+    self.isStatusBarHidden = NO;
+    [UIView animateWithDuration:0.3 animations:^{
+        [self setNeedsStatusBarAppearanceUpdate];
+    }];
+}
 
 - (instancetype)init
 {
