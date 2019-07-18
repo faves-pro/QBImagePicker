@@ -18,8 +18,6 @@
 
 @property (nonatomic, strong) NSBundle *assetBundle;
 
-@property (nonatomic) BOOL isStatusBarHidden;
-
 @end
 
 @implementation QBImagePickerController
