@@ -287,7 +287,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 {
     if (self.assetCollection) {
         PHFetchOptions *options = [PHFetchOptions new];
-        
+        options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending: NO]];
+
         switch (self.imagePickerController.mediaType) {
             case QBImagePickerMediaTypeImage:
                 options.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
@@ -302,6 +303,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         }
         
         self.fetchResult = [PHAsset fetchAssetsInAssetCollection:self.assetCollection options:options];
+        
         
         if ([self isAutoDeselectEnabled] && self.imagePickerController.selectedAssets.count > 0) {
             // Get index of previous selected asset
