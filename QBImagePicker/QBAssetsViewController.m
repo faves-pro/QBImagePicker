@@ -68,6 +68,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 @property (nonatomic, assign) BOOL isSelecting;
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, assign) BOOL isPanSelecting;
+@property (nonatomic, assign) BOOL isScrolled;
 @end
 
 @implementation QBAssetsViewController
@@ -110,7 +111,17 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     [self updateDoneButtonState];
     [self updateSelectionInfo];
-    [self.collectionView reloadData];    
+    [self.collectionView reloadData];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    
+    if (!self.isScrolled && self.collectionView.visibleCells.count > 0) {
+        self.isScrolled = true;
+        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:(self.fetchResult.count - 1) inSection: 0];
+        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -277,7 +288,6 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 {
     if (self.assetCollection) {
         PHFetchOptions *options = [PHFetchOptions new];
-        options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending: NO]];
 
         switch (self.imagePickerController.mediaType) {
             case QBImagePickerMediaTypeImage:
