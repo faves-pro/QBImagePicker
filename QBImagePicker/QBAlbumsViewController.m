@@ -8,6 +8,7 @@
 
 #import "QBAlbumsViewController.h"
 #import <Photos/Photos.h>
+#import <PhotosUI/PHPhotoLibrary+PhotosUISupport.h>
 
 // Views
 #import "QBAlbumCell.h"
@@ -71,6 +72,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     [self updateControlState];
     [self updateSelectionInfo];
+    [self checkPhotoLibraryAccess];
 }
 
 - (void)dealloc
@@ -236,6 +238,50 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return image;
 }
 
+#pragma mark -
+
+- (void)checkPhotoLibraryAccess
+{
+    if (@available(iOS 14, *)) {
+        PHAuthorizationStatus currentStatus = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+        if (currentStatus == PHAuthorizationStatusLimited) {
+            UIView *header = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 70)];
+            
+            UIButton *manageButton = [UIButton systemButtonWithPrimaryAction:[UIAction actionWithTitle:@"Manage" image:nil identifier:nil handler:^(__kindof UIAction * _Nonnull action) {
+                [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+            }]];
+            manageButton.tintColor = UIColor.blackColor;
+            manageButton.titleLabel.font = [UIFont fontWithDescriptor:[[UIFont preferredFontForTextStyle:UIFontTextStyleCallout].fontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold] size:0];
+            
+            UILabel *label = [[UILabel alloc] init];
+            label.text = @"You've given Faves access to only a selected number of photos";
+            label.numberOfLines = 0;
+            label.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
+            
+            manageButton.translatesAutoresizingMaskIntoConstraints = false;
+            label.translatesAutoresizingMaskIntoConstraints = false;
+            
+            UIStackView *stackView = [[UIStackView alloc] initWithArrangedSubviews:@[label, manageButton]];
+            stackView.layoutMarginsRelativeArrangement = true;
+            stackView.layoutMargins = UIEdgeInsetsMake(0, 16, 0, 16);
+            stackView.axis = UILayoutConstraintAxisHorizontal;
+            stackView.distribution = UIStackViewDistributionFill;
+            stackView.alignment = UIStackViewAlignmentFill;
+            stackView.spacing = 20;
+            
+            [manageButton setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+
+            [header addSubview:stackView];
+            stackView.frame = header.bounds;
+            stackView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+                        
+            self.tableView.tableHeaderView = header;
+        }
+        else {
+            self.tableView.tableHeaderView = nil;
+        }
+    }
+}
 
 #pragma mark - Checking for Selection Limit
 
@@ -388,6 +434,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             [self updateAssetCollections];
             [self.tableView reloadData];
         }
+        
+        [self checkPhotoLibraryAccess];
     });
 }
 

@@ -48,7 +48,9 @@
 
             case 4:
                 imagePickerController.maximumNumberOfSelection = 2;
-                [imagePickerController.selectedAssets addObject:[PHAsset fetchAssetsWithOptions:nil].lastObject];
+                if ([PHAsset fetchAssetsWithOptions:nil].count > 0) {
+                    [imagePickerController.selectedAssets addObject:[PHAsset fetchAssetsWithOptions:nil].lastObject];
+                }
                 break;
                 
             default:

@@ -38,6 +38,7 @@
 		AAF1CA301ACE6E46005F6295 /* QBAssetsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AAF1CA2E1ACE6E46005F6295 /* QBAssetsViewController.m */; };
 		AAF1CA331ACE6FB5005F6295 /* QBAssetCell.h in Headers */ = {isa = PBXBuildFile; fileRef = AAF1CA311ACE6FB5005F6295 /* QBAssetCell.h */; };
 		AAF1CA341ACE6FB5005F6295 /* QBAssetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = AAF1CA321ACE6FB5005F6295 /* QBAssetCell.m */; };
+		B30D590F2636E0080039A90C /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B30D590E2636E0080039A90C /* PhotosUI.framework */; };
 		E521B0A21B01D9300079461F /* QBImagePicker.strings in Resources */ = {isa = PBXBuildFile; fileRef = AAF1CA3F1ACE8918005F6295 /* QBImagePicker.strings */; };
 /* End PBXBuildFile section */
 
@@ -122,6 +123,7 @@
 		AAF1CA321ACE6FB5005F6295 /* QBAssetCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QBAssetCell.m; sourceTree = "<group>"; };
 		AAF1CA3E1ACE8918005F6295 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		AAF1CA401ACE8A8B005F6295 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
+		B30D590E2636E0080039A90C /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/iOSSupport/System/Library/Frameworks/PhotosUI.framework; sourceTree = DEVELOPER_DIR; };
 		E521B0A11B01D6810079461F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/QBImagePicker.strings"; sourceTree = "<group>"; };
 		F167DB441C086AB90045AD5B /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -131,6 +133,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B30D590F2636E0080039A90C /* PhotosUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,6 +203,7 @@
 				AAA8FE281ACDA0CE002A9710 /* QBImagePickerDemo */,
 				AAA8FE421ACDA0CE002A9710 /* QBImagePickerDemoTests */,
 				AAA8FE041ACDA079002A9710 /* Products */,
+				B30D590D2636E0080039A90C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -307,6 +311,14 @@
 				AAF1CA3F1ACE8918005F6295 /* QBImagePicker.strings */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		B30D590D2636E0080039A90C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B30D590E2636E0080039A90C /* PhotosUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
