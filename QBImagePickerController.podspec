@@ -12,5 +12,5 @@ Pod::Spec.new do |s|
   s.resource_bundles = { "QBImagePicker" => "QBImagePicker/*.{lproj,storyboard}" }
   s.platform         = :ios, "8.0"
   s.requires_arc     = true
-  s.frameworks       = "Photos"
+  s.frameworks       = "Photos", "PhotosUI"
 end
